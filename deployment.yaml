@@ -77,8 +77,20 @@ spec:
         #     memory: "1000Gi"
         # command: ["stress-ng"]
         # args: ["--vm", "1", "--vm-bytes", "500M", "--vm-hang", "1", "-v"]
+        imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+          - containerPort: 8080
+        securityContext:
+          privileged: true
+          allowPrivilegeEscalation: true
+        volumeMounts:
+          - mountPath: /host-system/
+            name: hunger-check-volume
+      volumes:
+        - name: hunger-check-volume
+          hostPath:
+            path: /
+
 ---
 apiVersion: v1
 kind: Service
@@ -96,6 +108,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  namespace: big-monolith
   name: hunger-check-ingress
 spec:
   ingressClassName: nginx
